@@ -1,0 +1,591 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Valentine 💘</title>
+
+  <!-- Inline favicon to avoid favicon.ico 404 -->
+  <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💘</text></svg>">
+
+  <!-- Bootstrap (CDN) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- jQuery (CDN) -->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+  <style>
+    :root{
+      --card-w: min(92vw, 520px);
+      --soft: rgba(255,255,255,.78);
+      --soft2: rgba(255,255,255,.58);
+      --shadow: 0 18px 60px rgba(0,0,0,.18);
+    }
+
+    body{
+      min-height: 100vh;
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background:
+        radial-gradient(circle at 10% 15%, rgba(255, 173, 214, .55) 0 22%, transparent 23%),
+        radial-gradient(circle at 82% 18%, rgba(255, 231, 153, .55) 0 18%, transparent 19%),
+        radial-gradient(circle at 18% 82%, rgba(170, 229, 255, .55) 0 20%, transparent 21%),
+        radial-gradient(circle at 88% 78%, rgba(204, 255, 204, .55) 0 18%, transparent 19%),
+        linear-gradient(135deg, #ff4d8d, #ff7db2, #ffd2e6);
+      overflow-x: hidden;
+    }
+
+    .bg-hearts::before,
+    .bg-hearts::after{
+      content:"";
+      position: fixed;
+      inset: 0;
+      background-image:
+        radial-gradient(circle at 20% 10%, rgba(255,255,255,.35) 0 2px, transparent 3px),
+        radial-gradient(circle at 80% 20%, rgba(255,255,255,.28) 0 2px, transparent 3px),
+        radial-gradient(circle at 35% 75%, rgba(255,255,255,.28) 0 2px, transparent 3px),
+        radial-gradient(circle at 70% 85%, rgba(255,255,255,.25) 0 2px, transparent 3px);
+      filter: blur(.2px);
+      pointer-events: none;
+      animation: floaty 10s ease-in-out infinite alternate;
+      opacity: .9;
+    }
+    .bg-hearts::after{
+      animation-duration: 14s;
+      opacity: .6;
+      transform: scale(1.1);
+    }
+    @keyframes floaty{
+      from{ transform: translateY(-6px) translateX(-6px); }
+      to{ transform: translateY(10px) translateX(8px); }
+    }
+
+    .wrap{
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 12px;
+    }
+
+    .card-love{
+      width: var(--card-w);
+      min-height: 420px;
+      background: linear-gradient(180deg, var(--soft), var(--soft2));
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,.5);
+      border-radius: 26px;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .sparkle{
+      position:absolute;
+      inset:-30%;
+      background:
+        radial-gradient(circle at 20% 25%, rgba(255,255,255,.35), transparent 35%),
+        radial-gradient(circle at 75% 35%, rgba(255,255,255,.25), transparent 40%),
+        radial-gradient(circle at 55% 75%, rgba(255,255,255,.18), transparent 45%);
+      transform: rotate(12deg);
+      pointer-events:none;
+    }
+
+    .title{
+      font-weight: 800;
+      letter-spacing: .2px;
+      line-height: 1.08;
+      text-shadow: 0 6px 18px rgba(0,0,0,.12);
+    }
+
+    .name{
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.6);
+      border: 1px solid rgba(255,255,255,.6);
+      box-shadow: 0 10px 22px rgba(0,0,0,.08);
+      font-weight: 700;
+    }
+
+    .question{
+      font-size: clamp(20px, 3.8vw, 30px);
+      font-weight: 800;
+      margin-top: 10px;
+    }
+
+    #playground{
+      position: relative;
+      width: 100%;
+      height: 240px;
+      border-radius: 22px;
+      background: rgba(255,255,255,.55);
+      border: 1px solid rgba(255,255,255,.55);
+      box-shadow: inset 0 2px 16px rgba(0,0,0,.06);
+      overflow: hidden;
+      isolation: isolate;
+    }
+
+    .big-btn{
+      position: absolute;
+      z-index: 2;
+      width: min(42%, 190px);
+      height: 72px;
+      border-radius: 18px;
+      font-size: 22px;
+      font-weight: 800;
+      border: none;
+      box-shadow: 0 14px 28px rgba(0,0,0,.15);
+      transition: transform .12s ease;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    #btnYes{
+      background: linear-gradient(135deg, #23d160, #5cff9a);
+      color: #063b1b;
+    }
+    #btnYes:active{ transform: scale(.98); }
+
+    #btnNo{
+      background: linear-gradient(135deg, #ff4d6d, #ff9bb0);
+      color: #4a0d19;
+      cursor: not-allowed;
+    }
+
+    .hint{
+      font-size: 14px;
+      opacity: .72;
+      margin-top: 12px;
+    }
+
+    /* Result overlay */
+    #result{
+      position: absolute;
+      inset: 0;
+      z-index: 5;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+
+      background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.75));
+      backdrop-filter: blur(10px);
+      padding: 28px 18px;
+      text-align: center;
+
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity .22s ease, visibility .22s ease;
+    }
+
+    #result.show{
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    #result h2{
+      font-weight: 900;
+      margin-bottom: 10px;
+      font-size: clamp(24px, 5vw, 34px);
+    }
+    #result p{
+      font-size: clamp(16px, 3.8vw, 20px);
+      margin: 0 auto;
+      max-width: 420px;
+      opacity: .92;
+    }
+
+    .heart{
+      position: fixed;
+      left: 50%;
+      top: -20px;
+      font-size: 18px;
+      pointer-events: none;
+      will-change: transform, opacity;
+      opacity: 0;
+      z-index: 9999;
+    }
+
+    /* ---------- Modern Name Prompt Modal ---------- */
+    .name-modal-backdrop{
+      position: fixed;
+      inset: 0;
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+
+      background: rgba(0,0,0,.35);
+      backdrop-filter: blur(6px);
+      opacity: 1;
+      transition: opacity .2s ease;
+    }
+
+    .name-modal{
+      width: min(92vw, 520px);
+      border-radius: 22px;
+      background: rgba(255,255,255,.9);
+      border: 1px solid rgba(255,255,255,.65);
+      box-shadow: 0 20px 60px rgba(0,0,0,.25);
+      overflow: hidden;
+    }
+
+    .name-modal header{
+      padding: 16px 18px;
+      background: linear-gradient(135deg, rgba(255,77,141,.18), rgba(255,210,230,.22));
+      border-bottom: 1px solid rgba(0,0,0,.06);
+    }
+    .name-modal header h3{
+      margin: 0;
+      font-weight: 900;
+      font-size: 20px;
+    }
+    .name-modal header p{
+      margin: 6px 0 0;
+      opacity: .8;
+      font-size: 14px;
+    }
+
+    .name-modal .content{
+      padding: 16px 18px 18px;
+    }
+
+    .name-modal .content label{
+      font-weight: 700;
+      font-size: 14px;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .name-modal .content input{
+      width: 100%;
+      border-radius: 14px;
+      border: 1px solid rgba(0,0,0,.12);
+      padding: 12px 14px;
+      font-size: 16px;
+      outline: none;
+      box-shadow: inset 0 1px 8px rgba(0,0,0,.06);
+    }
+    .name-modal .content input:focus{
+      border-color: rgba(255,77,141,.55);
+      box-shadow: 0 0 0 4px rgba(255,77,141,.18);
+    }
+
+    .name-modal .actions{
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 14px;
+    }
+
+    .name-modal .tiny-note{
+      margin-top: 10px;
+      font-size: 12px;
+      opacity: .7;
+    }
+
+    .hide-modal{
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .err{
+      display: none;
+      margin-top: 10px;
+      font-size: 13px;
+      color: #b00020;
+      font-weight: 700;
+    }
+
+    @media (max-width: 575.98px){
+      #playground{ height: 220px; }
+      .big-btn{ height: 66px; font-size: 20px; }
+    }
+    @media (max-width: 360px){
+      #playground{ height: 210px; }
+      .big-btn{ width: 44%; height: 62px; font-size: 18px; }
+    }
+    @media (min-width: 768px){
+      #playground{ height: 260px; }
+      .big-btn{ height: 76px; font-size: 24px; }
+    }
+    @media (prefers-reduced-motion: reduce){
+      *{ animation: none !important; transition: none !important; }
+    }
+  </style>
+</head>
+
+<body class="bg-hearts">
+
+  <!-- Modern prompt overlay (no skip) -->
+  <div id="nameBackdrop" class="name-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="nameTitle">
+    <div class="name-modal">
+      <header>
+        <h3 id="nameTitle">One tiny thing 💖</h3>
+        <p>Type the name and hit continue.</p>
+      </header>
+      <div class="content">
+        <label for="nameInput">Name</label>
+        <input id="nameInput" type="text" placeholder="Jane Doe / John Doe" autocomplete="name" />
+        <div class="actions">
+          <button id="nameGo" type="button" class="btn btn-dark rounded-pill px-4">Continue</button>
+        </div>
+        <div id="nameErr" class="err">Please enter a name 🙂</div>
+        <div class="tiny-note">Tip: Press Enter to continue.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="card-love p-4 p-sm-5">
+      <div class="sparkle"></div>
+
+      <div class="text-center position-relative">
+        <div class="mb-2">
+          <!-- default now generic -->
+          <span class="name" id="displayName">Valentine</span>
+        </div>
+
+        <h1 class="title mb-1" style="font-size: clamp(26px, 5.2vw, 40px);">
+          Hey <span id="heyName">there</span> 💖
+        </h1>
+
+        <div class="question">
+          Will you be my valentine?
+        </div>
+
+        <div class="mt-4 px-2">
+          <div id="playground" class="mx-auto">
+            <button id="btnYes" class="big-btn" type="button" aria-label="Yes">
+              YES 💘
+            </button>
+
+            <button id="btnNo" class="big-btn" type="button" aria-label="No">
+              NO 🙈
+            </button>
+
+            <div id="result">
+              <h2>YAYYY!!! 🥰💞</h2>
+              <p id="resultText">
+                You just made my whole day (and month).<br />
+                Now you’re officially my Valentine 💘<br />
+                Get ready for cuddles, sweet surprises, and lots of love.
+              </p>
+
+              <button id="btnReset" class="btn btn-dark btn-lg mt-4 px-4 rounded-pill" type="button">
+                Replay
+              </button>
+            </div>
+          </div>
+
+          <div class="hint">
+            (Try pressing “No” 😏)
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    $(function () {
+      const $play = $("#playground");
+      const $no = $("#btnNo");
+      const $yes = $("#btnYes");
+      const $result = $("#result");
+
+      const $nameBackdrop = $("#nameBackdrop");
+      const $nameInput = $("#nameInput");
+      const $nameErr = $("#nameErr");
+      const $displayName = $("#displayName");
+      const $heyName = $("#heyName");
+
+      // ----- Name helpers -----
+      function cleanName(s){
+        return (s || "")
+          .replace(/\s+/g, " ")
+          .replace(/[<>]/g, "")
+          .trim()
+          .slice(0, 40);
+      }
+
+      function firstName(full){
+        const parts = cleanName(full).split(" ").filter(Boolean);
+        return parts[0] ? parts[0] : "there";
+      }
+
+      function applyName(full){
+        const n = cleanName(full);
+        $displayName.text(n);
+        $heyName.text(firstName(n));
+        document.title = `Valentine for ${n} 💘`;
+      }
+
+      function closeNameModal(){
+        $nameBackdrop.addClass("hide-modal");
+        setTimeout(() => $nameBackdrop.remove(), 220);
+      }
+
+      function tryContinue(){
+        const n = cleanName($nameInput.val());
+        if (!n) {
+          $nameErr.show();
+          $nameInput.trigger("focus");
+          return;
+        }
+        $nameErr.hide();
+        applyName(n);
+        closeNameModal();
+      }
+
+      // Focus input on load
+      setTimeout(() => $nameInput.trigger("focus"), 50);
+
+      $("#nameGo").on("click", tryContinue);
+
+      $nameInput.on("keydown", function(e){
+        if (e.key === "Enter") {
+          e.preventDefault();
+          tryContinue();
+        }
+      });
+
+      // Optional: hide error once typing starts
+      $nameInput.on("input", function(){
+        if (cleanName($nameInput.val())) $nameErr.hide();
+      });
+
+      // ----- Button placement & movement -----
+      function clamp(n, min, max){ return Math.max(min, Math.min(max, n)); }
+
+      function placeButtonsDefault(){
+        const pw = $play.innerWidth();
+        const ph = $play.innerHeight();
+
+        const yesW = $yes.outerWidth();
+        const noW  = $no.outerWidth();
+        const bh   = Math.max($yes.outerHeight(), $no.outerHeight());
+
+        const top = clamp(Math.round(ph * 0.64), 12, ph - bh - 12);
+
+        const yesLeft = clamp(Math.round(pw * 0.10), 12, pw - yesW - 12);
+        const noLeft  = clamp(Math.round(pw * 0.55), 12, pw - noW  - 12);
+
+        $yes.css({ left: yesLeft, top: top }).show();
+        $no.css({ left: noLeft,  top: top }).show();
+      }
+
+      // Hover movement stronger (same vibe as tap)
+      let hoverInterval = null;
+
+      function moveNoButton(strength = 2){
+        const pad = 12;
+
+        const pw = $play.innerWidth();
+        const ph = $play.innerHeight();
+
+        const bw = $no.outerWidth();
+        const bh = $no.outerHeight();
+
+        const maxX = pw - bw - pad;
+        const maxY = ph - bh - pad;
+        if (maxX <= pad || maxY <= pad) return;
+
+        let x = Math.floor(Math.random() * (maxX - pad + 1)) + pad;
+        let y = Math.floor(Math.random() * (maxY - pad + 1)) + pad;
+
+        const yesPos = $yes.position();
+        const dx = x - yesPos.left;
+        const dy = y - yesPos.top;
+
+        const minDist = 140 + (strength * 50);
+        if (Math.hypot(dx, dy) < minDist) {
+          x = clamp(x + (dx < 0 ? -(200 + strength*50) : (200 + strength*50)), pad, maxX);
+          y = clamp(y + (dy < 0 ? -(120 + strength*40) : (120 + strength*40)), pad, maxY);
+        }
+
+        $no.stop(true).animate({ left: x, top: y }, 80);
+      }
+
+      $no.on("mouseenter", function(){
+        moveNoButton(3);
+        if (hoverInterval) clearInterval(hoverInterval);
+        hoverInterval = setInterval(() => moveNoButton(3), 140);
+      });
+
+      $no.on("mouseleave", function(){
+        if (hoverInterval) clearInterval(hoverInterval);
+        hoverInterval = null;
+      });
+
+      $no.on("touchstart pointerdown", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        moveNoButton(3);
+      });
+
+      $no.on("click", function (e) {
+        e.preventDefault();
+        moveNoButton(3);
+      });
+
+      function launchHearts(count = 26) {
+        if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+        const hearts = ["💖","💘","💕","💗","💓","❤️","😍","🥰"];
+        for (let i = 0; i < count; i++) {
+          const $h = $("<div class='heart'></div>").text(hearts[Math.floor(Math.random()*hearts.length)]);
+          $("body").append($h);
+
+          const startX = (window.innerWidth * 0.15) + Math.random() * (window.innerWidth * 0.7);
+          const drift = (Math.random() - 0.5) * 220;
+          const duration = 1600 + Math.random() * 1100;
+          const size = 16 + Math.random() * 20;
+
+          $h.css({ left: startX + "px", fontSize: size + "px", opacity: 0 });
+
+          $h.animate({ opacity: 1, top: (window.innerHeight * 0.15) + "px" }, 180);
+
+          $h.animate(
+            { top: (window.innerHeight + 80) + "px" },
+            {
+              duration,
+              step: function (now, fx) {
+                const progress = fx.pos;
+                $h.css("transform", `translateX(${drift * progress}px) rotate(${progress*220}deg)`);
+              },
+              complete: function () { $h.remove(); }
+            }
+          );
+        }
+      }
+
+      $yes.on("click", function () {
+        $yes.hide();
+        $no.hide();
+        $result.addClass("show");
+        launchHearts(30);
+      });
+
+      $("#btnReset").on("click", function () {
+        $result.removeClass("show");
+        placeButtonsDefault();
+      });
+
+      // Initial
+      placeButtonsDefault();
+
+      $(window).on("resize", function () {
+        if ($result.hasClass("show")) return;
+        placeButtonsDefault();
+      });
+    });
+  </script>
+</body>
+</html>
